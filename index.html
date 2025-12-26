@@ -4,47 +4,53 @@
     <meta charset="UTF-8">
     <title>Formulir Verifikasi Pendidikan KPM PKH</title>
     <style>
-        body { font-family: 'Arial', sans-serif; margin: 15px; font-size: 12px; color: #000; }
+        body { font-family: 'Arial', sans-serif; margin: 10px; font-size: 11px; color: #000; line-height: 1.2; }
         .no-print { background: #f4f4f4; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ddd; font-size: 14px; }
         
-        .kop-surat { display: flex; align-items: center; justify-content: space-between; border-bottom: 3px double #000; padding-bottom: 8px; margin-bottom: 15px; }
-        .logo-box { width: 80px; flex-shrink: 0; }
+        .kop-surat { display: flex; align-items: center; justify-content: space-between; border-bottom: 3px double #000; padding-bottom: 5px; margin-bottom: 10px; }
+        .logo-box { width: 70px; flex-shrink: 0; }
         .logo-box img { width: 100%; height: auto; }
         .header-text { text-align: center; flex-grow: 1; }
-        .header-text h2 { margin: 0; text-transform: uppercase; font-size: 18px; }
-        .header-text p { margin: 3px 0; font-size: 13px; }
+        .header-text h2 { margin: 0; text-transform: uppercase; font-size: 16px; }
+        .header-text p { margin: 2px 0; font-size: 11px; }
 
         table { width: 100%; border-collapse: collapse; margin-top: 5px; table-layout: auto; }
-        th, td { border: 1px solid black; padding: 8px 6px; text-align: center; font-size: 11px; color: #000; }
-        th { background-color: #d1d1d1; font-weight: bold; text-transform: uppercase; white-space: nowrap; font-size: 10px; }
+        th, td { border: 1px solid black; padding: 5px 4px; text-align: center; font-size: 10px; color: #000; }
+        th { background-color: #d1d1d1; font-weight: bold; text-transform: uppercase; white-space: nowrap; }
         
         tbody tr:nth-child(even) { background-color: #f2f2f2; }
         
-        .text-left { text-align: left; white-space: nowrap; font-weight: 500; } 
+        .text-left { text-align: left; white-space: nowrap; } 
         .col-hadir { width: 22px; }
-        .col-persen { width: 35px; }
+        .col-persen { width: 32px; }
 
-        .footer-container { margin-top: 40px; display: flex; justify-content: space-between; page-break-inside: avoid; }
-        .signature-box { width: 250px; text-align: center; font-size: 12px; }
-        .space { height: 75px; }
-        .nip-style { text-align: left; padding-left: 20px; margin-top: 8px; font-weight: bold; }
+        /* AREA TANDA TANGAN LEBIH KOMPAK */
+        .footer-container { 
+            margin-top: 15px; /* Jarak dari tabel dipersempit */
+            display: flex; 
+            justify-content: space-between; 
+            page-break-inside: avoid; /* Mencegah ttd terpisah halaman */
+        }
+        .signature-box { width: 220px; text-align: center; font-size: 11px; }
+        .space { height: 50px; } /* Tinggi ruang ttd dikurangi sedikit agar muat satu halaman */
+        .nip-style { text-align: left; padding-left: 15px; margin-top: 5px; font-weight: bold; }
 
         @media print {
             .no-print { display: none; }
             @page { size: landscape; margin: 0.5cm; }
             body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            th, td { font-size: 10px; padding: 6px 4px; }
+            th, td { font-size: 9px; padding: 4px 3px; }
         }
     </style>
 </head>
 <body>
 
 <div class="no-print">
-    <strong>Panduan:</strong> Upload file csv dari Siksng kemudian upload dan generate file.
+    <strong>Panduan :</strong> Download file csv melalui siksng kemudian upload pada web ini.
     <br><br>
     <input type="file" id="csvFile" accept=".csv" />
-    <button onclick="processCSV()" style="padding: 10px 20px; cursor: pointer; font-size: 14px; font-weight: bold;">GENERATE DATA</button>
-    <button onclick="saveAsPDF()" style="padding: 10px 20px; cursor: pointer; background: #27ae60; color: white; border: none; font-size: 14px; font-weight: bold;">SIMPAN PDF</button>
+    <button onclick="processCSV()" style="padding: 8px 16px; cursor: pointer; font-weight: bold;">GENERATE DATA</button>
+    <button onclick="saveAsPDF()" style="padding: 8px 16px; cursor: pointer; background: #27ae60; color: white; border: none; font-weight: bold;">SIMPAN PDF</button>
 </div>
 
 <div id="printArea">
@@ -54,11 +60,11 @@
         </div>
         <div class="header-text">
             <h2>Form Verifikasi Komitmen Pendidikan</h2>
-            <p><strong id="displayNamaSekolah" style="font-size: 16px;">NAMA SEKOLAH</strong></p>
+            <p><strong id="displayNamaSekolah">NAMA SEKOLAH</strong></p>
             <p>NPSN: <span id="displayNPSN">-</span> | Periode: <span id="displayBulan">-</span></p>
         </div>
         <div class="logo-box">
-            <img src="kemensos.png" alt="Logo Kemensos">
+            <img src="kemensos.png"" alt="Logo Kemensos">
         </div>
     </div>
 
@@ -83,7 +89,7 @@
             </tr>
         </thead>
         <tbody id="tableBody">
-            <tr><td colspan="12" style="padding: 50px;">Silakan upload file CSV...</td></tr>
+            <tr><td colspan="12" style="padding: 30px;">Data belum dimuat...</td></tr>
         </tbody>
     </table>
 
@@ -173,18 +179,9 @@
     }
 
     function saveAsPDF() {
-        // Membersihkan nama sekolah dari karakter yang dilarang dalam nama file
         const cleanSekolah = currentSekolah.replace(/[/\\?%*:|"<>]/g, '-').replace(/\s+/g, '_');
-        const fileName = `${currentNPSN}_${cleanSekolah}.pdf`;
-        
-        // Mengubah judul dokumen sementara agar saat save as pdf nama filenya otomatis benar
-        const originalTitle = document.title;
-        document.title = fileName;
-        
+        document.title = `${currentNPSN}_${cleanSekolah}`;
         window.print();
-        
-        // Kembalikan judul asli setelah print dialog muncul
-        setTimeout(() => { document.title = originalTitle; }, 1000);
     }
 
     const d = new Date();
@@ -192,6 +189,4 @@
     document.getElementById('currentDate').innerHTML = "Jember, " + d.getDate() + " " + months[d.getMonth()] + " " + d.getFullYear();
 </script>
 </body>
-
 </html>
-
