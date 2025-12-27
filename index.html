@@ -2,70 +2,71 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulir Verifikasi Pendidikan KPM PKH</title>
     <style>
         body { font-family: 'Arial', sans-serif; margin: 10px; font-size: 11px; color: #000; line-height: 1.2; }
-        .no-print { background: #f4f4f4; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ddd; font-size: 14px; }
         
+        /* Menu Navigasi (Hanya muncul di layar) */
+        .no-print { 
+            background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 15px; 
+            border: 2px dashed #3498db; text-align: center;
+        }
+        input[type="file"] { margin-bottom: 10px; width: 100%; font-size: 14px; }
+        button { 
+            padding: 12px 20px; cursor: pointer; font-weight: bold; 
+            border-radius: 5px; border: none; margin: 5px; width: 100%; max-width: 200px;
+        }
+        .btn-generate { background: #3498db; color: white; }
+        .btn-save { background: #27ae60; color: white; }
+
+        /* Kop Surat */
         .kop-surat { display: flex; align-items: center; justify-content: space-between; border-bottom: 3px double #000; padding-bottom: 5px; margin-bottom: 10px; }
-        .logo-box { width: 70px; flex-shrink: 0; }
+        .logo-box { width: 60px; flex-shrink: 0; }
         .logo-box img { width: 100%; height: auto; }
         .header-text { text-align: center; flex-grow: 1; }
-        .header-text h2 { margin: 0; text-transform: uppercase; font-size: 16px; }
-        .header-text p { margin: 2px 0; font-size: 11px; }
+        .header-text h2 { margin: 0; text-transform: uppercase; font-size: 14px; }
+        .header-text p { margin: 2px 0; font-size: 10px; }
 
+        /* Tabel */
         table { width: 100%; border-collapse: collapse; margin-top: 5px; table-layout: auto; }
-        th, td { border: 1px solid black; padding: 5px 4px; text-align: center; font-size: 10px; color: #000; }
-        th { background-color: #d1d1d1; font-weight: bold; text-transform: uppercase; white-space: nowrap; }
-        
+        th, td { border: 1px solid black; padding: 4px 3px; text-align: center; font-size: 9px; color: #000; }
+        th { background-color: #d1d1d1; font-weight: bold; text-transform: uppercase; }
         tbody tr:nth-child(even) { background-color: #f2f2f2; }
-        
         .text-left { text-align: left; white-space: nowrap; } 
-        .col-hadir { width: 22px; }
-        .col-persen { width: 32px; }
 
-        /* AREA TANDA TANGAN LEBIH KOMPAK */
-        .footer-container { 
-            margin-top: 15px; /* Jarak dari tabel dipersempit */
-            display: flex; 
-            justify-content: space-between; 
-            page-break-inside: avoid; /* Mencegah ttd terpisah halaman */
-        }
-        .signature-box { width: 220px; text-align: center; font-size: 11px; }
-        .space { height: 50px; } /* Tinggi ruang ttd dikurangi sedikit agar muat satu halaman */
+        /* Area Tanda Tangan */
+        .footer-container { margin-top: 15px; display: flex; justify-content: space-between; page-break-inside: avoid; }
+        .signature-box { width: 200px; text-align: center; font-size: 10px; }
+        .space { height: 45px; }
         .nip-style { text-align: left; padding-left: 15px; margin-top: 5px; font-weight: bold; }
 
         @media print {
             .no-print { display: none; }
             @page { size: landscape; margin: 0.5cm; }
             body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            th, td { font-size: 9px; padding: 4px 3px; }
         }
     </style>
 </head>
 <body>
 
 <div class="no-print">
-    <strong>Panduan :</strong> Download file csv melalui siksng kemudian upload pada web ini.
-    <br><br>
-    <input type="file" id="csvFile" accept=".csv" />
-    <button onclick="processCSV()" style="padding: 8px 16px; cursor: pointer; font-weight: bold;">GENERATE DATA</button>
-    <button onclick="saveAsPDF()" style="padding: 8px 16px; cursor: pointer; background: #27ae60; color: white; border: none; font-weight: bold;">SIMPAN PDF</button>
+    <p><strong>Panduan:</strong> Pilih file CSV, klik GENERATE, lalu SIMPAN PDF.</p>
+    <input type="file" id="csvFile" accept="*" />
+    <br>
+    <button onclick="processCSV()" class="btn-generate">GENERATE DATA</button>
+    <button onclick="saveAsPDF()" class="btn-save">SIMPAN PDF</button>
 </div>
 
 <div id="printArea">
     <div class="kop-surat">
-        <div class="logo-box">
-            <img src="15854234115187.png" alt="Logo PKH">
-        </div>
+        <div class="logo-box"><img src="15854234115187.png" alt="PKH"></div>
         <div class="header-text">
             <h2>Form Verifikasi Komitmen Pendidikan</h2>
             <p><strong id="displayNamaSekolah">NAMA SEKOLAH</strong></p>
             <p>NPSN: <span id="displayNPSN">-</span> | Periode: <span id="displayBulan">-</span></p>
         </div>
-        <div class="logo-box">
-            <img src="kemensos.png"" alt="Logo Kemensos">
-        </div>
+        <div class="logo-box"><img src="kemensos.png" alt="Kemensos"></div>
     </div>
 
     <table>
@@ -79,17 +80,17 @@
                 <th rowspan="2">TINGKAT</th>
                 <th colspan="4">KEHADIRAN</th>
                 <th rowspan="2">KET</th>
-                <th rowspan="2">NAMA PENDAMPING</th>
+                <th rowspan="2">PENDAMPING</th>
             </tr>
             <tr>
-                <th class="col-hadir">A</th>
-                <th class="col-hadir">I</th>
-                <th class="col-hadir">S</th>
-                <th class="col-persen">%</th>
+                <th style="width: 20px;">A</th>
+                <th style="width: 20px;">I</th>
+                <th style="width: 20px;">S</th>
+                <th style="width: 30px;">%</th>
             </tr>
         </thead>
         <tbody id="tableBody">
-            <tr><td colspan="12" style="padding: 30px;">Data belum dimuat...</td></tr>
+            <tr><td colspan="12" style="padding: 20px;">Data kosong, silakan upload file CSV...</td></tr>
         </tbody>
     </table>
 
@@ -102,7 +103,7 @@
             <p class="nip-style">NIP. </p>
         </div>
         <div class="signature-box">
-            <p id="currentDate"></p>
+            <p>Jember, ...........................................</p>
             <p>Kepala Sekolah / Verifikator</p>
             <div class="space"></div>
             <p><strong>__________________________</strong></p>
@@ -117,13 +118,12 @@
 
     function processCSV() {
         const fileInput = document.getElementById('csvFile');
-        const reader = new FileReader();
-
         if (fileInput.files.length === 0) {
-            alert("Silakan pilih file CSV!");
+            alert("Pilih file terlebih dahulu!");
             return;
         }
 
+        const reader = new FileReader();
         reader.onload = function(e) {
             const lines = e.target.result.split('\n');
             const tableBody = document.getElementById('tableBody');
@@ -131,7 +131,6 @@
 
             lines.forEach((line) => {
                 const col = line.split(';');
-
                 if (line.includes("NPSN")) {
                     currentNPSN = col[1].replace(/[:"' \r\n]/g, '').trim();
                     document.getElementById('displayNPSN').innerText = currentNPSN;
@@ -156,6 +155,7 @@
                 }
             });
 
+            // Sorting berdasarkan Tingkat Kelas lalu Nama Siswa
             students.sort((a, b) => {
                 if (a.tingkat !== b.tingkat) return a.tingkat.localeCompare(b.tingkat);
                 return a.siswa.localeCompare(b.siswa);
@@ -175,18 +175,15 @@
                 </tr>`;
             });
         };
-        reader.readAsText(fileInput.files[0]);
+        // Menggunakan ISO-8859-1 agar kompatibel dengan Excel di berbagai perangkat
+        reader.readAsText(fileInput.files[0], 'ISO-8859-1');
     }
 
     function saveAsPDF() {
         const cleanSekolah = currentSekolah.replace(/[/\\?%*:|"<>]/g, '-').replace(/\s+/g, '_');
-        document.title = `${currentNPSN}_${cleanSekolah}`;
+        document.title = currentNPSN + "_" + cleanSekolah;
         window.print();
     }
-
-    const d = new Date();
-    const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-    document.getElementById('currentDate').innerHTML = "Jember, " + d.getDate() + " " + months[d.getMonth()] + " " + d.getFullYear();
 </script>
 </body>
 </html>
