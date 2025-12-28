@@ -3,186 +3,239 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulir Verifikasi Pendidikan KPM PKH</title>
+    <title>Website Formulir Verifikasi Pendidikan KPM PKH</title>
     <style>
-        body { font-family: 'Arial', sans-serif; margin: 10px; font-size: 11px; color: #000; line-height: 1.2; }
+        body { font-family: 'Arial', sans-serif; margin: 0; padding: 0; color: #000; background-color: #f4f7f6; }
         
-        /* Menu Navigasi (Hanya muncul di layar) */
+        /* Area Menu & Kontrol */
         .no-print { 
-            background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 15px; 
-            border: 2px dashed #3498db; text-align: center;
+            background: #fff; padding: 30px; border-radius: 0 0 15px 15px; 
+            margin: 0 auto 20px auto; max-width: 900px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center;
+            border-top: 5px solid #3498db;
         }
-        input[type="file"] { margin-bottom: 10px; width: 100%; font-size: 14px; }
-        button { 
-            padding: 12px 20px; cursor: pointer; font-weight: bold; 
-            border-radius: 5px; border: none; margin: 5px; width: 100%; max-width: 200px;
-        }
-        .btn-generate { background: #3498db; color: white; }
-        .btn-save { background: #27ae60; color: white; }
 
-        /* Kop Surat */
+        h1.main-title { color: #2c3e50; margin-bottom: 5px; font-size: 24px; text-transform: uppercase; }
+        p.guide-text { color: #e67e22; font-weight: bold; margin-bottom: 25px; font-size: 14px; background: #fff3e0; padding: 10px; border-radius: 5px; display: inline-block; border: 1px solid #ffe0b2; }
+
+        /* KOTAK TARIK FILE */
+        #dropZone {
+            border: 3px dashed #3498db;
+            background: #f8fbff;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        #dropZone.dragover { background: #e1f5fe; border-color: #2ecc71; transform: scale(1.01); }
+
+        .input-group { margin-bottom: 20px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+        .input-group input { padding: 12px; border: 2px solid #ddd; border-radius: 6px; width: 280px; font-size: 14px; outline: none; transition: 0.3s; }
+        .input-group input:focus { border-color: #3498db; box-shadow: 0 0 8px rgba(52,152,219,0.3); }
+        
+        .btn-generate { background: #3498db; color: white; padding: 14px 30px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; box-shadow: 0 4px 6px rgba(52,152,219,0.2); }
+        .btn-save { background: #27ae60; color: white; padding: 14px 30px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; box-shadow: 0 4px 6px rgba(39,174,96,0.2); margin-left: 10px; }
+        .btn-generate:hover { background: #2980b9; }
+        .btn-save:hover { background: #219150; }
+        
+        /* Layout Halaman Cetak */
+        .page-container { padding: 1.5cm; page-break-after: always; background: #white; }
         .kop-surat { display: flex; align-items: center; justify-content: space-between; border-bottom: 3px double #000; padding-bottom: 5px; margin-bottom: 10px; }
         .logo-box { width: 60px; flex-shrink: 0; }
         .logo-box img { width: 100%; height: auto; }
         .header-text { text-align: center; flex-grow: 1; }
         .header-text h2 { margin: 0; text-transform: uppercase; font-size: 14px; }
-        .header-text p { margin: 2px 0; font-size: 10px; }
 
-        /* Tabel */
-        table { width: 100%; border-collapse: collapse; margin-top: 5px; table-layout: auto; }
-        th, td { border: 1px solid black; padding: 4px 3px; text-align: center; font-size: 9px; color: #000; }
-        th { background-color: #d1d1d1; font-weight: bold; text-transform: uppercase; }
-        tbody tr:nth-child(even) { background-color: #f2f2f2; }
+        table { width: 100%; border-collapse: collapse; margin-top: 5px; background: white; }
+        th, td { border: 1px solid black; padding: 4px 3px; text-align: center; font-size: 9px; }
+        th { background-color: #d1d1d1 !important; text-transform: uppercase; -webkit-print-color-adjust: exact; }
+        tbody tr:nth-child(even) { background-color: #f9f9f9; }
         .text-left { text-align: left; white-space: nowrap; } 
 
-        /* Area Tanda Tangan */
         .footer-container { margin-top: 15px; display: flex; justify-content: space-between; page-break-inside: avoid; }
-        .signature-box { width: 200px; text-align: center; font-size: 10px; }
-        .space { height: 45px; }
-        .nip-style { text-align: left; padding-left: 15px; margin-top: 5px; font-weight: bold; }
+        .signature-box { width: 220px; text-align: center; font-size: 10px; }
+        .space { height: 55px; }
+        .nip-center { text-align: center; margin-top: 5px; font-weight: bold; }
+        .nip-left { text-align: left; padding-left: 10px; margin-top: 5px; font-weight: bold; }
 
         @media print {
             .no-print { display: none; }
-            @page { size: landscape; margin: 0.5cm; }
-            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            body { background: none; }
+            @page { size: landscape; margin: 0; }
+            .page-container { padding: 0.8cm; background: white; }
+            th { background-color: #d1d1d1 !important; }
         }
     </style>
 </head>
 <body>
 
 <div class="no-print">
-    <p><strong>Panduan:</strong> Pilih file CSV, klik GENERATE, lalu SIMPAN PDF.</p>
-    <input type="file" id="csvFile" accept="*" />
-    <br>
-    <button onclick="processCSV()" class="btn-generate">GENERATE DATA</button>
-    <button onclick="saveAsPDF()" class="btn-save">SIMPAN PDF</button>
-</div>
-
-<div id="printArea">
-    <div class="kop-surat">
-        <div class="logo-box"><img src="15854234115187.png" alt="PKH"></div>
-        <div class="header-text">
-            <h2>Form Verifikasi Komitmen Pendidikan</h2>
-            <p><strong id="displayNamaSekolah">NAMA SEKOLAH</strong></p>
-            <p>NPSN: <span id="displayNPSN">-</span> | Periode: <span id="displayBulan">-</span></p>
-        </div>
-        <div class="logo-box"><img src="kemensos.png" alt="Kemensos"></div>
+    <h1 class="main-title">Website Formulir Verifikasi Pendidikan KPM PKH</h1>
+    <p class="guide-text">Panduan : Upload file CSV kemudian isi Nama Pendamping dan NIP, Klik Generate dan Simpan</p>
+    
+    <div class="input-group">
+        <input type="text" id="namaPendampingInput" placeholder="Nama Pendamping PKH..." />
+        <input type="text" id="nipPendampingInput" placeholder="NIP Pendamping..." />
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th rowspan="2">NO</th>
-                <th rowspan="2">NAMA PENGURUS</th>
-                <th rowspan="2">NAMA SISWA</th>
-                <th rowspan="2">NIK SISWA</th>
-                <th rowspan="2">NISN</th>
-                <th rowspan="2">TINGKAT</th>
-                <th colspan="4">KEHADIRAN</th>
-                <th rowspan="2">KET</th>
-                <th rowspan="2">PENDAMPING</th>
-            </tr>
-            <tr>
-                <th style="width: 20px;">A</th>
-                <th style="width: 20px;">I</th>
-                <th style="width: 20px;">S</th>
-                <th style="width: 30px;">%</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody">
-            <tr><td colspan="12" style="padding: 20px;">Data kosong, silakan upload file CSV...</td></tr>
-        </tbody>
-    </table>
-
-    <div class="footer-container">
-        <div class="signature-box">
-            <p>&nbsp;</p>
-            <p>Pendamping PKH</p>
-            <div class="space"></div>
-            <p><strong>__________________________</strong></p>
-            <p class="nip-style">NIP. </p>
-        </div>
-        <div class="signature-box">
-            <p>Jember, ...........................................</p>
-            <p>Kepala Sekolah / Verifikator</p>
-            <div class="space"></div>
-            <p><strong>__________________________</strong></p>
-            <p class="nip-style">NIP. </p>
-        </div>
+    <div id="dropZone">
+        <h3 style="margin:0; color:#2c3e50;">Tarik & Lepaskan File CSV di Sini</h3>
+        <p style="color:#7f8c8d; font-size: 13px;">(Bisa tarik banyak file sekaligus)</p>
+        <input type="file" id="csvFiles" accept="*" multiple style="display: none;" />
+        <button type="button" onclick="document.getElementById('csvFiles').click()" style="padding: 8px 15px; cursor:pointer; background:#fff; border:1px solid #3498db; color:#3498db; border-radius:4px; font-weight:bold;">Pilih File Manual</button>
+        <div id="fileStatus" style="margin-top:15px; font-weight:bold; color:#27ae60;">Belum ada file dipilih</div>
     </div>
+    
+    <button onclick="processMassiveCSVs()" class="btn-generate">GENERATE FORM</button>
+    <button onclick="window.print()" class="btn-save">SIMPAN PDF / CETAK</button>
 </div>
+
+<div id="outputArea"></div>
 
 <script>
-    let currentNPSN = "Data";
-    let currentSekolah = "Verifikasi";
+    let selectedFiles = [];
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('csvFiles');
+    const fileStatus = document.getElementById('fileStatus');
 
-    function processCSV() {
-        const fileInput = document.getElementById('csvFile');
-        if (fileInput.files.length === 0) {
-            alert("Pilih file terlebih dahulu!");
+    // Mencegah browser membuka file saat di-drag
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, e => { e.preventDefault(); e.stopPropagation(); }, false);
+    });
+
+    dropZone.addEventListener('dragover', () => dropZone.classList.add('dragover'));
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+
+    dropZone.addEventListener('drop', (e) => {
+        dropZone.classList.remove('dragover');
+        handleFiles(e.dataTransfer.files);
+    });
+
+    fileInput.addEventListener('change', (e) => {
+        handleFiles(e.target.files);
+    });
+
+    function handleFiles(files) {
+        selectedFiles = Array.from(files);
+        fileStatus.innerText = selectedFiles.length + " file berhasil dimasukkan.";
+    }
+
+    async function processMassiveCSVs() {
+        const outputArea = document.getElementById('outputArea');
+        const namaP = document.getElementById('namaPendampingInput').value || "..........................................";
+        const nipP = document.getElementById('nipPendampingInput').value;
+
+        if (selectedFiles.length === 0) {
+            alert("Silakan pilih file CSV terlebih dahulu!");
             return;
         }
 
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const lines = e.target.result.split('\n');
-            const tableBody = document.getElementById('tableBody');
-            let students = [];
+        outputArea.innerHTML = ''; 
 
-            lines.forEach((line) => {
-                const col = line.split(';');
-                if (line.includes("NPSN")) {
-                    currentNPSN = col[1].replace(/[:"' \r\n]/g, '').trim();
-                    document.getElementById('displayNPSN').innerText = currentNPSN;
-                }
-                if (line.includes("Nama Sekolah")) {
-                    currentSekolah = col[1].replace(/[:"'\r\n]/g, '').trim();
-                    document.getElementById('displayNamaSekolah').innerText = currentSekolah;
-                }
-                if (line.includes("DESEMBER")) {
-                    document.getElementById('displayBulan').innerText = "DESEMBER";
-                }
-
-                if (col.length > 10 && !isNaN(parseInt(col[0]))) {
-                    students.push({
-                        pengurus: col[2].replace(/"/g, ''),
-                        nikSiswa: col[3].replace(/'/g, ''),
-                        nisn: col[4].replace(/'/g, ''),
-                        siswa: col[5].replace(/"/g, ''),
-                        tingkat: col[7].replace(/"/g, ''),
-                        pendamping: col[14] ? col[14].replace(/"/g, '').trim() : ''
-                    });
-                }
-            });
-
-            // Sorting berdasarkan Tingkat Kelas lalu Nama Siswa
-            students.sort((a, b) => {
-                if (a.tingkat !== b.tingkat) return a.tingkat.localeCompare(b.tingkat);
-                return a.siswa.localeCompare(b.siswa);
-            });
-
-            tableBody.innerHTML = '';
-            students.forEach((s, i) => {
-                tableBody.innerHTML += `<tr>
-                    <td>${i + 1}</td>
-                    <td class="text-left">${s.pengurus}</td>
-                    <td class="text-left">${s.siswa}</td>
-                    <td>${s.nikSiswa}</td>
-                    <td>${s.nisn}</td>
-                    <td>${s.tingkat}</td>
-                    <td></td><td></td><td></td><td></td><td></td>
-                    <td class="text-left">${s.pendamping}</td>
-                </tr>`;
-            });
-        };
-        // Menggunakan ISO-8859-1 agar kompatibel dengan Excel di berbagai perangkat
-        reader.readAsText(fileInput.files[0], 'ISO-8859-1');
+        let allHtml = '';
+        for (let file of selectedFiles) {
+            const data = await readFileData(file);
+            allHtml += generateSchoolPage(data, namaP, nipP);
+        }
+        outputArea.innerHTML = allHtml;
     }
 
-    function saveAsPDF() {
-        const cleanSekolah = currentSekolah.replace(/[/\\?%*:|"<>]/g, '-').replace(/\s+/g, '_');
-        document.title = currentNPSN + "_" + cleanSekolah;
-        window.print();
+    function readFileData(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const lines = e.target.result.split('\n');
+                let schoolInfo = { nama: "NAMA SEKOLAH", npsn: "-" };
+                let students = [];
+
+                lines.forEach((line) => {
+                    const col = line.split(';');
+                    if (line.includes("NPSN")) schoolInfo.npsn = col[1].replace(/[:"' \r\n]/g, '').trim();
+                    if (line.includes("Nama Sekolah")) schoolInfo.nama = col[1].replace(/[:"'\r\n]/g, '').trim();
+
+                    if (col.length > 10 && !isNaN(parseInt(col[0]))) {
+                        students.push({
+                            pengurus: col[2].replace(/"/g, ''),
+                            nik: col[3].replace(/'/g, ''),
+                            nisn: col[4].replace(/'/g, ''),
+                            siswa: col[5].replace(/"/g, ''),
+                            tingkat: col[7].replace(/"/g, ''),
+                            pendamping: col[14] ? col[14].replace(/"/g, '').trim() : ''
+                        });
+                    }
+                });
+
+                students.sort((a, b) => {
+                    if (a.tingkat !== b.tingkat) return a.tingkat.localeCompare(b.tingkat);
+                    return a.siswa.localeCompare(b.siswa);
+                });
+
+                resolve({ info: schoolInfo, students: students });
+            };
+            reader.readAsText(file, 'ISO-8859-1');
+        });
+    }
+
+    function generateSchoolPage(data, namaP, nipP) {
+        let rows = '';
+        data.students.forEach((s, i) => {
+            rows += `<tr>
+                <td>${i + 1}</td>
+                <td class="text-left">${s.pengurus}</td>
+                <td class="text-left">${s.siswa}</td>
+                <td>${s.nik}</td>
+                <td>${s.nisn}</td>
+                <td>${s.tingkat}</td>
+                <td></td><td></td><td></td><td></td><td></td>
+                <td class="text-left">${s.pendamping}</td>
+            </tr>`;
+        });
+
+        let nipHtml = nipP 
+            ? `<p class="nip-center">NIP. ${nipP}</p>` 
+            : `<p class="nip-left">NIP. __________________________</p>`;
+
+        return `
+        <div class="page-container">
+            <div class="kop-surat">
+                <div class="logo-box"><img src="15854234115187.png" alt="PKH"></div>
+                <div class="header-text">
+                    <h2>Form Verifikasi Komitmen Pendidikan</h2>
+                    <p><strong>${data.info.nama}</strong></p>
+                    <p>NPSN: ${data.info.npsn} | Periode: Oktober - Desember 2025</p>
+                </div>
+                <div class="logo-box"><img src="kemensos.png" alt="Kemensos"></div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th rowspan="2">NO</th><th rowspan="2">NAMA PENGURUS</th><th rowspan="2">NAMA SISWA</th>
+                        <th rowspan="2">NIK SISWA</th><th rowspan="2">NISN</th><th rowspan="2">TINGKAT</th>
+                        <th colspan="4">KEHADIRAN</th><th rowspan="2">KET</th><th rowspan="2">PENDAMPING</th>
+                    </tr>
+                    <tr><th>A</th><th>I</th><th>S</th><th>%</th></tr>
+                </thead>
+                <tbody>${rows}</tbody>
+            </table>
+
+            <div class="footer-container">
+                <div class="signature-box">
+                    <p>&nbsp;</p><p>Pendamping PKH</p>
+                    <div class="space"></div>
+                    <p><strong>${namaP.toUpperCase()}</strong></p>
+                    ${nipHtml}
+                </div>
+                <div class="signature-box">
+                    <p>Jember, ...........................................</p>
+                    <p>Kepala Sekolah / Verifikator</p>
+                    <div class="space"></div>
+                    <p><strong>__________________________</strong></p>
+                    <p class="nip-left">NIP. __________________________</p>
+                </div>
+            </div>
+        </div>`;
     }
 </script>
 </body>
