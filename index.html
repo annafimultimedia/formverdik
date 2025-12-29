@@ -7,7 +7,7 @@
     <style>
         body { font-family: 'Arial', sans-serif; margin: 0; padding: 0; color: #000; background-color: #f4f7f6; }
         
-        /* Area Menu & Kontrol */
+        /* Bagian Antarmuka Website (Tidak Ikut Dicetak) */
         .no-print { 
             background: #fff; padding: 30px; border-radius: 0 0 15px 15px; 
             margin: 0 auto 20px auto; max-width: 900px;
@@ -15,39 +15,31 @@
             border-top: 5px solid #3498db;
         }
 
-        h1.main-title { color: #2c3e50; margin-bottom: 5px; font-size: 24px; text-transform: uppercase; }
-        p.guide-text { color: #e67e22; font-weight: bold; margin-bottom: 25px; font-size: 14px; background: #fff3e0; padding: 10px; border-radius: 5px; display: inline-block; border: 1px solid #ffe0b2; }
+        h1.main-title { color: #2c3e50; margin-bottom: 5px; font-size: 22px; text-transform: uppercase; }
+        p.guide-text { color: #e67e22; font-weight: bold; margin-bottom: 25px; font-size: 13px; background: #fff3e0; padding: 10px; border-radius: 5px; display: inline-block; border: 1px solid #ffe0b2; }
 
-        /* KOTAK TARIK FILE */
+        .input-group { margin-bottom: 20px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+        .input-group input { padding: 12px; border: 2px solid #ddd; border-radius: 6px; width: 280px; font-size: 14px; outline: none; }
+        .input-group input:focus { border-color: #3498db; }
+
         #dropZone {
-            border: 3px dashed #3498db;
-            background: #f8fbff;
-            padding: 30px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            cursor: pointer;
-            transition: 0.3s;
+            border: 3px dashed #3498db; background: #f8fbff; padding: 30px; border-radius: 12px;
+            margin-bottom: 20px; cursor: pointer; transition: 0.3s;
         }
         #dropZone.dragover { background: #e1f5fe; border-color: #2ecc71; transform: scale(1.01); }
 
-        .input-group { margin-bottom: 20px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
-        .input-group input { padding: 12px; border: 2px solid #ddd; border-radius: 6px; width: 280px; font-size: 14px; outline: none; transition: 0.3s; }
-        .input-group input:focus { border-color: #3498db; box-shadow: 0 0 8px rgba(52,152,219,0.3); }
+        .btn-generate { background: #3498db; color: white; padding: 14px 30px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; }
+        .btn-save { background: #27ae60; color: white; padding: 14px 30px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; margin-left: 10px; }
         
-        .btn-generate { background: #3498db; color: white; padding: 14px 30px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; box-shadow: 0 4px 6px rgba(52,152,219,0.2); }
-        .btn-save { background: #27ae60; color: white; padding: 14px 30px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; box-shadow: 0 4px 6px rgba(39,174,96,0.2); margin-left: 10px; }
-        .btn-generate:hover { background: #2980b9; }
-        .btn-save:hover { background: #219150; }
-        
-        /* Layout Halaman Cetak */
-        .page-container { padding: 1.5cm; page-break-after: always; background: #white; }
+        /* Tata Letak Dokumen (Halaman Cetak) */
+        .page-container { padding: 1.5cm; page-break-after: always; background: white; min-height: 21cm; }
         .kop-surat { display: flex; align-items: center; justify-content: space-between; border-bottom: 3px double #000; padding-bottom: 5px; margin-bottom: 10px; }
         .logo-box { width: 60px; flex-shrink: 0; }
         .logo-box img { width: 100%; height: auto; }
         .header-text { text-align: center; flex-grow: 1; }
         .header-text h2 { margin: 0; text-transform: uppercase; font-size: 14px; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 5px; background: white; }
+        table { width: 100%; border-collapse: collapse; margin-top: 5px; }
         th, td { border: 1px solid black; padding: 4px 3px; text-align: center; font-size: 9px; }
         th { background-color: #d1d1d1 !important; text-transform: uppercase; -webkit-print-color-adjust: exact; }
         tbody tr:nth-child(even) { background-color: #f9f9f9; }
@@ -55,7 +47,7 @@
 
         .footer-container { margin-top: 15px; display: flex; justify-content: space-between; page-break-inside: avoid; }
         .signature-box { width: 220px; text-align: center; font-size: 10px; }
-        .space { height: 55px; }
+        .space { height: 50px; }
         .nip-center { text-align: center; margin-top: 5px; font-weight: bold; }
         .nip-left { text-align: left; padding-left: 10px; margin-top: 5px; font-weight: bold; }
 
@@ -63,8 +55,7 @@
             .no-print { display: none; }
             body { background: none; }
             @page { size: landscape; margin: 0; }
-            .page-container { padding: 0.8cm; background: white; }
-            th { background-color: #d1d1d1 !important; }
+            .page-container { padding: 0.8cm; }
         }
     </style>
 </head>
@@ -76,25 +67,27 @@
     
     <div class="input-group">
         <input type="text" id="namaPendampingInput" placeholder="Nama Pendamping PKH..." />
-        <input type="text" id="nipPendampingInput" placeholder="NIP Pendamping..." />
+        <input type="text" id="nipPendampingInput" placeholder="NIP Pendamping (Kosongkan jika tulis tangan)..." />
     </div>
 
     <div id="dropZone">
         <h3 style="margin:0; color:#2c3e50;">Tarik & Lepaskan File CSV di Sini</h3>
-        <p style="color:#7f8c8d; font-size: 13px;">(Bisa tarik banyak file sekaligus)</p>
+        <p style="color:#7f8c8d; font-size: 13px;">(Bisa tarik banyak file sekaligus dari komputer)</p>
         <input type="file" id="csvFiles" accept="*" multiple style="display: none;" />
         <button type="button" onclick="document.getElementById('csvFiles').click()" style="padding: 8px 15px; cursor:pointer; background:#fff; border:1px solid #3498db; color:#3498db; border-radius:4px; font-weight:bold;">Pilih File Manual</button>
         <div id="fileStatus" style="margin-top:15px; font-weight:bold; color:#27ae60;">Belum ada file dipilih</div>
     </div>
     
     <button onclick="processMassiveCSVs()" class="btn-generate">GENERATE FORM</button>
-    <button onclick="window.print()" class="btn-save">SIMPAN PDF / CETAK</button>
+    <button onclick="saveAsPDF()" class="btn-save">SIMPAN PDF / CETAK</button>
 </div>
 
 <div id="outputArea"></div>
 
 <script>
     let selectedFiles = [];
+    let firstSchoolName = "";
+
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('csvFiles');
     const fileStatus = document.getElementById('fileStatus');
@@ -118,7 +111,7 @@
 
     function handleFiles(files) {
         selectedFiles = Array.from(files);
-        fileStatus.innerText = selectedFiles.length + " file berhasil dimasukkan.";
+        fileStatus.innerText = selectedFiles.length + " file siap diproses.";
     }
 
     async function processMassiveCSVs() {
@@ -132,10 +125,11 @@
         }
 
         outputArea.innerHTML = ''; 
-
         let allHtml = '';
-        for (let file of selectedFiles) {
-            const data = await readFileData(file);
+
+        for (let i = 0; i < selectedFiles.length; i++) {
+            const data = await readFileData(selectedFiles[i]);
+            if (i === 0) firstSchoolName = data.info.nama;
             allHtml += generateSchoolPage(data, namaP, nipP);
         }
         outputArea.innerHTML = allHtml;
@@ -199,13 +193,13 @@
         return `
         <div class="page-container">
             <div class="kop-surat">
-                <div class="logo-box"><img src="15854234115187.png" alt="PKH"></div>
+                <div class="logo-box"><img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Logo_Program_Keluarga_Harapan_%28PKH%29.png" alt="PKH"></div>
                 <div class="header-text">
                     <h2>Form Verifikasi Komitmen Pendidikan</h2>
                     <p><strong>${data.info.nama}</strong></p>
                     <p>NPSN: ${data.info.npsn} | Periode: Oktober - Desember 2025</p>
                 </div>
-                <div class="logo-box"><img src="kemensos.png" alt="Kemensos"></div>
+                <div class="logo-box"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Logo_Kementerian_Sosial_RI.png/600px-Logo_Kementerian_Sosial_RI.png" alt="Kemensos"></div>
             </div>
 
             <table>
@@ -236,6 +230,23 @@
                 </div>
             </div>
         </div>`;
+    }
+
+    function saveAsPDF() {
+        if (selectedFiles.length === 0) {
+            alert("Generate data terlebih dahulu!");
+            return;
+        }
+
+        let cleanName = firstSchoolName.replace(/[/\\?%*:|"<>]/g, '-').replace(/\s+/g, '_');
+        
+        if (selectedFiles.length > 1) {
+            document.title = "Verifikasi_Pendidikan_Kolektif_" + selectedFiles.length + "_Sekolah";
+        } else {
+            document.title = "Verifikasi_Pendidikan_" + cleanName;
+        }
+        
+        window.print();
     }
 </script>
 </body>
