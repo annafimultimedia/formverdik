@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Formulir Verifikasi Pendidikan KPM PKH</title>
+    <style>
+        /* CSS UNTUK LAYAR */
+        body { font-family: 'Arial', sans-serif; margin: 0; padding: 0; color: #000; background-color: #f4f7f6; }
+        .no-print { 
+            background: #fff; padding: 25px; border-radius: 0 0 15px 15px; 
+            margin: 0 auto 20px auto; max-width: 950px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center;
+            border-top: 5px solid #3498db;
+        }
+        h1.main-title { color: #2c3e50; margin: 0 0 5px 0; font-size: 20px; text-transform: uppercase; }
+        p.guide-text { color: #e67e22; font-weight: bold; margin-bottom: 20px; font-size: 13px; background: #fff3e0; padding: 8px; border-radius: 5px; display: inline-block; border: 1px solid #ffe0b2; }
+        .input-group { margin-bottom: 15px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        .input-group input { padding: 10px; border: 2px solid #ddd; border-radius: 6px; width: 260px; font-size: 14px; outline: none; }
+        #dropZone { border: 3px dashed #3498db; background: #f8fbff; padding: 20px; border-radius: 12px; margin-bottom: 15px; cursor: pointer; }
+        .btn-generate { background: #3498db; color: white; padding: 12px 25px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; }
+        .btn-save { background: #27ae60; color: white; padding: 12px 25px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; margin-left: 10px; }
+
+        /* CSS UNTUK HALAMAN A4 LANDSCAPE */
+        .page-container { 
+            width: 27.7cm; /* Lebar A4 Landscape dikurangi sedikit margin */
+            min-height: 19cm;
+            margin: 0 auto;
+            padding: 1cm;
+            background: white;
+            box-sizing: border-box;
+            page-break-after: always;
+        }
+
+        .kop-surat { display: flex; align-items: center; justify-content: space-between; border-bottom: 3px double #000; padding-bottom: 5px; margin-bottom: 10px; }
+        .logo-box { width: 55px; flex-shrink: 0; }
+        .logo-box img { width: 100%; height: auto; }
+        .header-text { text-align: center; flex-grow: 1; }
+        .header-text h2 { margin: 0; text-transform: uppercase; font-size: 13px; }
+        .header-text p { margin: 2px 0; font-size: 11px; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 5px; table-layout: fixed; word-wrap: break-word; }
+        th, td { border: 1px solid black; padding: 4px 2px; text-align: center; font-size: 8.5px; }
+        th { background-color: #d1d1d1 !important; text-transform: uppercase; -webkit-print-color-adjust: exact; }
+
+        .footer-container { margin-top: 15px; display: flex; justify-content: space-between; page-break-inside: avoid; }
+        .signature-box { width: 250px; text-align: center; font-size: 10px; }
+        .space { height: 50px; }
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background: none; }
+            @page { size: A4 landscape; margin: 0.5cm; }
+            .page-container { margin: 0; padding: 0.5cm; width: 100%; border: none; page-break-before: always; }
+            .page-container:first-child { page-break-before: avoid; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="no-print">
+    <h1 class="main-title">Website Formulir Verifikasi Pendidikan KPM PKH</h1>
+    <p class="guide-text">Panduan : Upload file CSV kemudian isi Nama Pendamping dan NIP, Klik Generate dan Simpan</p>
+    
+    <div class="input-group">
+        <input type="text" id="namaPendampingInput" placeholder="NAMA PENDAMPING (TTD)..." />
+        <input type="text" id="nipPendampingInput" placeholder="NIP PENDAMPING..." />
+    </div>
+
+    <div id="dropZone">
+        <h3 style="margin:0; color:#2c3e50;">Tarik & Lepaskan File CSV SIKSNG di Sini</h3>
+        <input type="file" id="csvFiles" accept=".csv" multiple style="display: none;" />
+        <button type="button" onclick="document.getElementById('csvFiles').click()">Pilih File Manual</button>
+        <div id="fileStatus" style="margin-top:10px; font-weight:bold; color:#27ae60;">Belum ada file dipilih</div>
+    </div>
+    
+    <button onclick="processMassiveCSVs()" class="btn-generate">GENERATE FORM</button>
+    <button onclick="saveAsPDF()" class="btn-save">SIMPAN PDF / CETAK</button>
+</div>
+
+<div id="outputArea"></div>
+
+<script>
+    let selectedFiles = [];
+    let firstSchoolName = "";
+
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('csvFiles');
+    const fileStatus = document.getElementById('fileStatus');
+
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eName => {
+        dropZone.addEventListener(eName, e => { e.preventDefault(); e.stopPropagation(); }, false);
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        selectedFiles = Array.from(e.dataTransfer.files);
+        fileStatus.innerText = selectedFiles.length + " file dipilih.";
+    });
+
+    fileInput.addEventListener('change', (e) => {
+        selectedFiles = Array.from(e.target.files);
+        fileStatus.innerText = selectedFiles.length + " file dipilih.";
+    });
+
+    async function processMassiveCSVs() {
+        const outputArea = document.getElementById('outputArea');
+        const namaP_TTD = document.getElementById('namaPendampingInput').value.trim() || "..........................................";
+        const nipP_TTD = document.getElementById('nipPendampingInput').value.trim();
+
+        if (selectedFiles.length === 0) { alert("Pilih file CSV dahulu!"); return; }
+        outputArea.innerHTML = ''; 
+
+        for (let i = 0; i < selectedFiles.length; i++) {
+            const data = await readFileData(selectedFiles[i]);
+            if (i === 0) firstSchoolName = data.info.nama;
+            outputArea.innerHTML += generateSchoolPage(data, namaP_TTD, nipP_TTD);
+        }
+    }
+
+    function readFileData(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const lines = e.target.result.split('\n');
+                let schoolInfo = { nama: "NAMA SEKOLAH", npsn: "-" };
+                let students = [];
+
+                lines.forEach((line) => {
+                    const col = line.split(';');
+                    // Deteksi Kop
+                    if (line.includes("NPSN")) schoolInfo.npsn = (col[1] || "").replace(/[:"' \r\n]/g, '').trim();
+                    if (line.includes("Nama Sekolah")) schoolInfo.nama = (col[1] || "").replace(/[:"'\r\n]/g, '').trim();
+
+                    // Deteksi Baris Siswa (NIK Siswa ada di kolom index 3)
+                    if (col.length > 15 && !isNaN(parseInt(col[0]))) {
+                        // Di file Anda, Nama Pendamping ada di kolom terakhir (index 18 atau 19)
+                        let rawPendamping = col[col.length - 1] || "";
+                        
+                        students.push({
+                            pengurus: (col[2] || "").replace(/"/g, ''),
+                            nik: (col[3] || "").replace(/'/g, ''),
+                            nisn: (col[4] || "").replace(/'/g, ''),
+                            siswa: (col[5] || "").replace(/"/g, ''),
+                            tingkat: (col[7] || "").replace(/"/g, ''),
+                            pendamping: rawPendamping.replace(/"/g, '').trim()
+                        });
+                    }
+                });
+                students.sort((a, b) => a.tingkat.localeCompare(b.tingkat) || a.siswa.localeCompare(b.siswa));
+                resolve({ info: schoolInfo, students: students });
+            };
+            reader.readAsText(file, 'ISO-8859-1');
+        });
+    }
+
+    function generateSchoolPage(data, namaP, nipP) {
+        let rows = '';
+        data.students.forEach((s, i) => {
+            rows += `<tr>
+                <td style="width:5%">${i + 1}</td>
+                <td style="text-align:left; width:15%">${s.pengurus}</td>
+                <td style="text-align:left; width:15%">${s.siswa}</td>
+                <td style="width:12%">${s.nik}</td>
+                <td style="width:10%">${s.nisn}</td>
+                <td style="width:8%">${s.tingkat}</td>
+                <td style="width:3%"></td><td style="width:3%"></td><td style="width:3%"></td><td style="width:4%"></td>
+                <td style="width:7%"></td>
+                <td style="text-align:left; width:15%">${s.pendamping}</td>
+            </tr>`;
+        });
+
+        let nipHtml = nipP ? `<p style="margin:0; font-weight:bold;">NIP. ${nipP}</p>` : `<p style="text-align:left; margin:0; padding-left:20px; font-weight:bold;">NIP. ___________________</p>`;
+
+        return `
+        <div class="page-container">
+            <div class="kop-surat">
+                <div class="logo-box"><img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Logo_Program_Keluarga_Harapan_%28PKH%29.png" alt="PKH"></div>
+                <div class="header-text">
+                    <h2>Form Verifikasi Komitmen Pendidikan</h2>
+                    <p><strong>${data.info.nama}</strong></p>
+                    <p>NPSN: ${data.info.npsn} | Periode: Oktober - Desember 2025</p>
+                </div>
+                <div class="logo-box"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Logo_Kementerian_Sosial_RI.png/600px-Logo_Kementerian_Sosial_RI.png" alt="Kemensos"></div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th rowspan="2">NO</th><th rowspan="2">NAMA PENGURUS</th><th rowspan="2">NAMA SISWA</th>
+                        <th rowspan="2">NIK SISWA</th><th rowspan="2">NISN</th><th rowspan="2">TINGKAT</th>
+                        <th colspan="4">KEHADIRAN</th><th rowspan="2">KET</th><th rowspan="2">PENDAMPING</th>
+                    </tr>
+                    <tr><th>A</th><th>I</th><th>S</th><th>%</th></tr>
+                </thead>
+                <tbody>${rows}</tbody>
+            </table>
+            <div class="footer-container">
+                <div class="signature-box">
+                    <p>Pendamping PKH</p>
+                    <div class="space"></div>
+                    <p><strong>${namaP.toUpperCase()}</strong></p>
+                    ${nipHtml}
+                </div>
+                <div class="signature-box">
+                    <p>Jember, ............................. 2025</p>
+                    <p>Kepala Sekolah / Verifikator</p>
+                    <div class="space"></div>
+                    <p><strong>__________________________</strong></p>
+                    <p style="text-align:left; margin:0; padding-left:20px; font-weight:bold;">NIP. ___________________</p>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    function saveAsPDF() {
+        if (selectedFiles.length === 0) return;
+        let cleanName = firstSchoolName.replace(/[/\\?%*:|"<>]/g, '-').replace(/\s+/g, '_');
+        document.title = "Verifikasi_PKH_" + cleanName;
+        window.print();
+    }
+</script>
+</body>
+</html>
