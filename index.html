@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Website Formulir Verifikasi Pendidikan KPM PKH</title>
     <style>
-        /* CSS LAYAR */
+        /* CSS CETAK A4 LANDSCAPE */
         body { font-family: 'Arial', sans-serif; margin: 0; padding: 0; color: #000; background-color: #f4f7f6; }
         .no-print { 
             background: #fff; padding: 20px; border-radius: 0 0 15px 15px; 
@@ -20,11 +20,10 @@
         .btn-generate { background: #3498db; color: white; padding: 10px 20px; font-weight: bold; border: none; border-radius: 4px; cursor: pointer; }
         .btn-save { background: #27ae60; color: white; padding: 10px 20px; font-weight: bold; border: none; border-radius: 4px; cursor: pointer; margin-left: 5px; }
 
-        /* CSS CETAK A4 LANDSCAPE */
         .page-container { 
             width: 28.7cm; 
             margin: 0 auto;
-            padding: 0.8cm;
+            padding: 0.7cm;
             background: white;
             box-sizing: border-box;
             page-break-after: always;
@@ -37,22 +36,18 @@
         .header-text h2 { margin: 0; font-size: 13px; text-transform: uppercase; }
         .header-text p { margin: 0; font-size: 11px; font-weight: bold; }
 
-        /* OPTIMASI TABEL: KOLOM MENYEMPIT SESUAI ISI */
         table { width: 100%; border-collapse: collapse; margin-top: 5px; table-layout: auto; }
         th, td { 
             border: 1px solid black; 
-            padding: 2px 4px; /* Padding diperkecil */
+            padding: 2px 4px; 
             text-align: center; 
             font-size: 8.5px; 
-            white-space: nowrap; /* Mencegah teks turun ke bawah kecuali diperlukan */
+            white-space: nowrap; 
         }
         
-        /* Kolom Kehadiran & Ket dibuat sangat sempit */
         .col-narrow { width: 15px; }
-        .col-ket { width: 40px; }
-        
-        /* Kolom nama diizinkan membungkus jika terlalu panjang agar tabel tidak melebar */
-        .col-name { white-space: normal; text-align: left; line-height: 1; }
+        .col-ket { width: 35px; }
+        .col-name { white-space: normal; text-align: left; line-height: 1.1; }
 
         th { background-color: #e0e0e0 !important; -webkit-print-color-adjust: exact; }
 
@@ -131,19 +126,37 @@
                 const lines = e.target.result.split('\n');
                 let schoolInfo = { nama: "NAMA SEKOLAH", npsn: "-" };
                 let students = [];
+                let pendampingColIndex = -1;
+
+                // Tahap 1: Cari baris header untuk menentukan posisi kolom "NAMA PENDAMPING"
+                for (let i = 0; i < lines.length; i++) {
+                    let cols = lines[i].split(';');
+                    let headerString = lines[i].toUpperCase();
+                    
+                    if (headerString.includes("NIK PENGURUS") || headerString.includes("NAMA SISWA")) {
+                        // Cari index kolom yang mengandung kata "PENDAMPING"
+                        pendampingColIndex = cols.findIndex(c => c.toUpperCase().includes("PENDAMPING"));
+                        break;
+                    }
+                }
+
+                // Tahap 2: Proses data siswa
                 lines.forEach((line) => {
                     const col = line.split(';');
                     if (line.includes("NPSN")) schoolInfo.npsn = (col[1] || "").replace(/[:"' \r\n]/g, '').trim();
                     if (line.includes("Nama Sekolah")) schoolInfo.nama = (col[1] || "").replace(/[:"'\r\n]/g, '').trim();
-                    if (col.length > 15 && !isNaN(parseInt(col[0]))) {
+                    
+                    if (col.length > 10 && !isNaN(parseInt(col[0]))) {
+                        // Jika index kolom pendamping tidak ditemukan otomatis, gunakan kolom terakhir sebagai cadangan
+                        let finalIndex = (pendampingColIndex !== -1) ? pendampingColIndex : (col.length - 1);
+                        
                         students.push({
-                            no: col[0],
                             pengurus: (col[2] || "").replace(/"/g, ''),
                             nik: (col[3] || "").replace(/'/g, ''),
                             nisn: (col[4] || "").replace(/'/g, ''),
                             siswa: (col[5] || "").replace(/"/g, ''),
                             tingkat: (col[7] || "").replace(/"/g, ''),
-                            pendamping: (col[col.length - 1] || "").replace(/"/g, '').trim()
+                            pendamping: (col[finalIndex] || "").replace(/"/g, '').trim()
                         });
                     }
                 });
@@ -175,13 +188,13 @@
         return `
         <div class="page-container">
             <div class="kop-surat">
-                <div class="logo-box"><img src="15854234115187.png"></div>
+                <div class="logo-box"><img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Logo_Program_Keluarga_Harapan_%28PKH%29.png"></div>
                 <div class="header-text">
                     <h2>Form Verifikasi Komitmen Pendidikan</h2>
                     <p>${data.info.nama}</p>
                     <p style="font-size:9px">NPSN: ${data.info.npsn} | Periode: Oktober - Desember 2025</p>
                 </div>
-                <div class="logo-box"><img src="kemensos.png"></div>
+                <div class="logo-box"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Logo_Kementerian_Sosial_RI.png/600px-Logo_Kementerian_Sosial_RI.png"></div>
             </div>
             <table>
                 <thead>
