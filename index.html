@@ -5,84 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Website Formulir Verifikasi Pendidikan KPM PKH</title>
     <style>
-        /* CSS UNTUK TAMPILAN LAYAR */
+        /* CSS UNTUK LAYAR */
         body { font-family: 'Arial', sans-serif; margin: 0; padding: 0; color: #000; background-color: #f4f7f6; }
-        
         .no-print { 
-            background: #fff; padding: 30px; border-radius: 0 0 15px 15px; 
-            margin: 0 auto 20px auto; max-width: 900px;
+            background: #fff; padding: 25px; border-radius: 0 0 15px 15px; 
+            margin: 0 auto 20px auto; max-width: 950px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center;
             border-top: 5px solid #3498db;
         }
+        h1.main-title { color: #2c3e50; margin: 0 0 5px 0; font-size: 20px; text-transform: uppercase; }
+        p.guide-text { color: #e67e22; font-weight: bold; margin-bottom: 20px; font-size: 13px; background: #fff3e0; padding: 8px; border-radius: 5px; display: inline-block; border: 1px solid #ffe0b2; }
+        .input-group { margin-bottom: 15px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        .input-group input { padding: 10px; border: 2px solid #ddd; border-radius: 6px; width: 260px; font-size: 14px; outline: none; }
+        #dropZone { border: 3px dashed #3498db; background: #f8fbff; padding: 20px; border-radius: 12px; margin-bottom: 15px; cursor: pointer; }
+        .btn-generate { background: #3498db; color: white; padding: 12px 25px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; }
+        .btn-save { background: #27ae60; color: white; padding: 12px 25px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; margin-left: 10px; }
 
-        h1.main-title { color: #2c3e50; margin-bottom: 5px; font-size: 22px; text-transform: uppercase; }
-        p.guide-text { color: #e67e22; font-weight: bold; margin-bottom: 25px; font-size: 13px; background: #fff3e0; padding: 10px; border-radius: 5px; display: inline-block; border: 1px solid #ffe0b2; }
-
-        .input-group { margin-bottom: 20px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
-        .input-group input { padding: 12px; border: 2px solid #ddd; border-radius: 6px; width: 280px; font-size: 14px; outline: none; }
-        
-        #dropZone {
-            border: 3px dashed #3498db; background: #f8fbff; padding: 30px; border-radius: 12px;
-            margin-bottom: 20px; cursor: pointer; transition: 0.3s;
-        }
-        #dropZone.dragover { background: #e1f5fe; border-color: #2ecc71; }
-
-        .btn-generate { background: #3498db; color: white; padding: 14px 30px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; }
-        .btn-save { background: #27ae60; color: white; padding: 14px 30px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; margin-left: 10px; }
-        
-        /* CSS UNTUK STRUKTUR HALAMAN DOKUMEN */
-        #outputArea { display: block; width: 100%; }
-
+        /* CSS UNTUK HALAMAN A4 LANDSCAPE */
         .page-container { 
-            padding: 1.2cm; 
-            background: white; 
+            width: 27.7cm; /* Lebar A4 Landscape dikurangi sedikit margin */
+            min-height: 19cm;
+            margin: 0 auto;
+            padding: 1cm;
+            background: white;
             box-sizing: border-box;
-            width: 100%;
+            page-break-after: always;
         }
 
-        /* Kop & Tabel */
         .kop-surat { display: flex; align-items: center; justify-content: space-between; border-bottom: 3px double #000; padding-bottom: 5px; margin-bottom: 10px; }
-        .logo-box { width: 60px; flex-shrink: 0; }
+        .logo-box { width: 55px; flex-shrink: 0; }
         .logo-box img { width: 100%; height: auto; }
         .header-text { text-align: center; flex-grow: 1; }
-        .header-text h2 { margin: 0; text-transform: uppercase; font-size: 14px; }
+        .header-text h2 { margin: 0; text-transform: uppercase; font-size: 13px; }
+        .header-text p { margin: 2px 0; font-size: 11px; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 5px; }
-        th, td { border: 1px solid black; padding: 4px 3px; text-align: center; font-size: 9px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 5px; table-layout: fixed; word-wrap: break-word; }
+        th, td { border: 1px solid black; padding: 4px 2px; text-align: center; font-size: 8.5px; }
         th { background-color: #d1d1d1 !important; text-transform: uppercase; -webkit-print-color-adjust: exact; }
-        .text-left { text-align: left; white-space: nowrap; } 
 
         .footer-container { margin-top: 15px; display: flex; justify-content: space-between; page-break-inside: avoid; }
-        .signature-box { width: 220px; text-align: center; font-size: 10px; }
+        .signature-box { width: 250px; text-align: center; font-size: 10px; }
         .space { height: 50px; }
-        .nip-center { text-align: center; margin-top: 5px; font-weight: bold; }
-        .nip-left { text-align: left; padding-left: 10px; margin-top: 5px; font-weight: bold; }
 
-        /* ATURAN CETAK (PRINT) - MENGHILANGKAN LEMBAR KOSONG */
         @media print {
-            html, body { background: none; margin: 0; padding: 0; height: auto; }
             .no-print { display: none !important; }
-            
-            @page { 
-                size: landscape; 
-                margin: 0.5cm; 
-            }
-
-            .page-container { 
-                margin: 0; 
-                padding: 0.5cm;
-                border: none;
-                page-break-before: always; /* Pastikan pindah halaman tepat di awal data sekolah */
-            }
-
-            /* Hapus pemisah halaman pada elemen pertama agar tidak ada kertas kosong di awal */
-            .page-container:first-child { 
-                page-break-before: avoid; 
-            }
-
-            /* Hindari pemutusan tabel di tengah baris */
-            table { page-break-inside: auto; }
-            tr { page-break-inside: avoid; page-break-after: auto; }
+            body { background: none; }
+            @page { size: A4 landscape; margin: 0.5cm; }
+            .page-container { margin: 0; padding: 0.5cm; width: 100%; border: none; page-break-before: always; }
+            .page-container:first-child { page-break-before: avoid; }
         }
     </style>
 </head>
@@ -93,16 +63,15 @@
     <p class="guide-text">Panduan : Upload file CSV kemudian isi Nama Pendamping dan NIP, Klik Generate dan Simpan</p>
     
     <div class="input-group">
-        <input type="text" id="namaPendampingInput" placeholder="Nama Pendamping PKH..." />
-        <input type="text" id="nipPendampingInput" placeholder="NIP Pendamping..." />
+        <input type="text" id="namaPendampingInput" placeholder="NAMA PENDAMPING (TTD)..." />
+        <input type="text" id="nipPendampingInput" placeholder="NIP PENDAMPING..." />
     </div>
 
     <div id="dropZone">
-        <h3 style="margin:0; color:#2c3e50;">Tarik & Lepaskan File CSV di Sini</h3>
-        <p style="color:#7f8c8d; font-size: 13px;">(Bisa tarik banyak file sekaligus)</p>
-        <input type="file" id="csvFiles" accept="*" multiple style="display: none;" />
-        <button type="button" onclick="document.getElementById('csvFiles').click()" style="padding: 8px 15px; cursor:pointer; background:#fff; border:1px solid #3498db; color:#3498db; border-radius:4px; font-weight:bold;">Pilih File Manual</button>
-        <div id="fileStatus" style="margin-top:15px; font-weight:bold; color:#27ae60;">Belum ada file dipilih</div>
+        <h3 style="margin:0; color:#2c3e50;">Tarik & Lepaskan File CSV SIKSNG di Sini</h3>
+        <input type="file" id="csvFiles" accept=".csv" multiple style="display: none;" />
+        <button type="button" onclick="document.getElementById('csvFiles').click()">Pilih File Manual</button>
+        <div id="fileStatus" style="margin-top:10px; font-weight:bold; color:#27ae60;">Belum ada file dipilih</div>
     </div>
     
     <button onclick="processMassiveCSVs()" class="btn-generate">GENERATE FORM</button>
@@ -119,40 +88,33 @@
     const fileInput = document.getElementById('csvFiles');
     const fileStatus = document.getElementById('fileStatus');
 
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        dropZone.addEventListener(eventName, e => { e.preventDefault(); e.stopPropagation(); }, false);
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eName => {
+        dropZone.addEventListener(eName, e => { e.preventDefault(); e.stopPropagation(); }, false);
     });
 
-    dropZone.addEventListener('dragover', () => dropZone.classList.add('dragover'));
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
     dropZone.addEventListener('drop', (e) => {
-        dropZone.classList.remove('dragover');
-        handleFiles(e.dataTransfer.files);
+        selectedFiles = Array.from(e.dataTransfer.files);
+        fileStatus.innerText = selectedFiles.length + " file dipilih.";
     });
 
-    fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
-
-    function handleFiles(files) {
-        selectedFiles = Array.from(files);
-        fileStatus.innerText = selectedFiles.length + " file siap diproses.";
-    }
+    fileInput.addEventListener('change', (e) => {
+        selectedFiles = Array.from(e.target.files);
+        fileStatus.innerText = selectedFiles.length + " file dipilih.";
+    });
 
     async function processMassiveCSVs() {
         const outputArea = document.getElementById('outputArea');
-        const namaP = document.getElementById('namaPendampingInput').value || "..........................................";
-        const nipP = document.getElementById('nipPendampingInput').value;
+        const namaP_TTD = document.getElementById('namaPendampingInput').value.trim() || "..........................................";
+        const nipP_TTD = document.getElementById('nipPendampingInput').value.trim();
 
-        if (selectedFiles.length === 0) { alert("Silakan pilih file CSV terlebih dahulu!"); return; }
-
+        if (selectedFiles.length === 0) { alert("Pilih file CSV dahulu!"); return; }
         outputArea.innerHTML = ''; 
-        let allHtml = '';
 
         for (let i = 0; i < selectedFiles.length; i++) {
             const data = await readFileData(selectedFiles[i]);
             if (i === 0) firstSchoolName = data.info.nama;
-            allHtml += generateSchoolPage(data, namaP, nipP);
+            outputArea.innerHTML += generateSchoolPage(data, namaP_TTD, nipP_TTD);
         }
-        outputArea.innerHTML = allHtml;
     }
 
     function readFileData(file) {
@@ -165,24 +127,26 @@
 
                 lines.forEach((line) => {
                     const col = line.split(';');
-                    if (line.includes("NPSN")) schoolInfo.npsn = col[1].replace(/[:"' \r\n]/g, '').trim();
-                    if (line.includes("Nama Sekolah")) schoolInfo.nama = col[1].replace(/[:"'\r\n]/g, '').trim();
+                    // Deteksi Kop
+                    if (line.includes("NPSN")) schoolInfo.npsn = (col[1] || "").replace(/[:"' \r\n]/g, '').trim();
+                    if (line.includes("Nama Sekolah")) schoolInfo.nama = (col[1] || "").replace(/[:"'\r\n]/g, '').trim();
 
-                    if (col.length > 10 && !isNaN(parseInt(col[0]))) {
+                    // Deteksi Baris Siswa (NIK Siswa ada di kolom index 3)
+                    if (col.length > 15 && !isNaN(parseInt(col[0]))) {
+                        // Di file Anda, Nama Pendamping ada di kolom terakhir (index 18 atau 19)
+                        let rawPendamping = col[col.length - 1] || "";
+                        
                         students.push({
-                            pengurus: col[2].replace(/"/g, ''),
-                            nik: col[3].replace(/'/g, ''),
-                            nisn: col[4].replace(/'/g, ''),
-                            siswa: col[5].replace(/"/g, ''),
-                            tingkat: col[7].replace(/"/g, ''),
-                            pendamping: col[14] ? col[14].replace(/"/g, '').trim() : ''
+                            pengurus: (col[2] || "").replace(/"/g, ''),
+                            nik: (col[3] || "").replace(/'/g, ''),
+                            nisn: (col[4] || "").replace(/'/g, ''),
+                            siswa: (col[5] || "").replace(/"/g, ''),
+                            tingkat: (col[7] || "").replace(/"/g, ''),
+                            pendamping: rawPendamping.replace(/"/g, '').trim()
                         });
                     }
                 });
-                students.sort((a, b) => {
-                    if (a.tingkat !== b.tingkat) return a.tingkat.localeCompare(b.tingkat);
-                    return a.siswa.localeCompare(b.siswa);
-                });
+                students.sort((a, b) => a.tingkat.localeCompare(b.tingkat) || a.siswa.localeCompare(b.siswa));
                 resolve({ info: schoolInfo, students: students });
             };
             reader.readAsText(file, 'ISO-8859-1');
@@ -193,31 +157,30 @@
         let rows = '';
         data.students.forEach((s, i) => {
             rows += `<tr>
-                <td>${i + 1}</td>
-                <td class="text-left">${s.pengurus}</td>
-                <td class="text-left">${s.siswa}</td>
-                <td>${s.nik}</td>
-                <td>${s.nisn}</td>
-                <td>${s.tingkat}</td>
-                <td></td><td></td><td></td><td></td><td></td>
-                <td class="text-left">${s.pendamping}</td>
+                <td style="width:5%">${i + 1}</td>
+                <td style="text-align:left; width:15%">${s.pengurus}</td>
+                <td style="text-align:left; width:15%">${s.siswa}</td>
+                <td style="width:12%">${s.nik}</td>
+                <td style="width:10%">${s.nisn}</td>
+                <td style="width:8%">${s.tingkat}</td>
+                <td style="width:3%"></td><td style="width:3%"></td><td style="width:3%"></td><td style="width:4%"></td>
+                <td style="width:7%"></td>
+                <td style="text-align:left; width:15%">${s.pendamping}</td>
             </tr>`;
         });
 
-        let nipHtml = nipP 
-            ? `<p class="nip-center">NIP. ${nipP}</p>` 
-            : `<p class="nip-left">NIP. __________________________</p>`;
+        let nipHtml = nipP ? `<p style="margin:0; font-weight:bold;">NIP. ${nipP}</p>` : `<p style="text-align:left; margin:0; padding-left:20px; font-weight:bold;">NIP. ___________________</p>`;
 
         return `
         <div class="page-container">
             <div class="kop-surat">
-                <div class="logo-box"><img src="kemensos.png" alt="PKH"></div>
+                <div class="logo-box"><img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Logo_Program_Keluarga_Harapan_%28PKH%29.png" alt="PKH"></div>
                 <div class="header-text">
                     <h2>Form Verifikasi Komitmen Pendidikan</h2>
                     <p><strong>${data.info.nama}</strong></p>
                     <p>NPSN: ${data.info.npsn} | Periode: Oktober - Desember 2025</p>
                 </div>
-                <div class="logo-box"><img src="15854234115187.png" alt="Kemensos"></div>
+                <div class="logo-box"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Logo_Kementerian_Sosial_RI.png/600px-Logo_Kementerian_Sosial_RI.png" alt="Kemensos"></div>
             </div>
             <table>
                 <thead>
@@ -238,25 +201,22 @@
                     ${nipHtml}
                 </div>
                 <div class="signature-box">
-                    <p>Jember, ...........................................</p>
+                    <p>Jember, ............................. 2025</p>
                     <p>Kepala Sekolah / Verifikator</p>
                     <div class="space"></div>
                     <p><strong>__________________________</strong></p>
-                    <p class="nip-left">NIP. __________________________</p>
+                    <p style="text-align:left; margin:0; padding-left:20px; font-weight:bold;">NIP. ___________________</p>
                 </div>
             </div>
         </div>`;
     }
 
     function saveAsPDF() {
-        if (selectedFiles.length === 0) { alert("Generate data terlebih dahulu!"); return; }
+        if (selectedFiles.length === 0) return;
         let cleanName = firstSchoolName.replace(/[/\\?%*:|"<>]/g, '-').replace(/\s+/g, '_');
-        document.title = selectedFiles.length > 1 
-            ? "Verifikasi_PKH_Kolektif_" + selectedFiles.length + "_Sekolah" 
-            : "Verifikasi_PKH_" + cleanName;
+        document.title = "Verifikasi_PKH_" + cleanName;
         window.print();
     }
 </script>
 </body>
 </html>
-
