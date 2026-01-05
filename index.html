@@ -18,7 +18,7 @@
             background-color: var(--bg-body); 
         }
 
-        /* --- UI DASHBOARD (DIPERTAHANKAN) --- */
+        /* --- UI DASHBOARD --- */
         .no-print { 
             background: #ffffff; padding: 40px; border-radius: 0 0 25px 25px; 
             margin: 0 auto 30px auto; max-width: 1000px;
@@ -50,20 +50,14 @@
         .btn-generate { background: var(--primary-color); color: white; }
         .btn-save { background: var(--secondary-color); color: white; margin-left: 10px; }
 
-        /* --- PRINT LAYOUT (PERBAIKAN HALAMAN BERANTAKAN) --- */
+        /* --- PRINT LAYOUT --- */
         .page-container { 
-            width: 28.7cm; 
-            margin: 0 auto; 
-            padding: 0; 
-            background: white;
+            width: 28.7cm; margin: 0 auto; padding: 0; background: white;
             box-sizing: border-box;
-            page-break-after: always; /* MEMAKSA FILE BERIKUTNYA PINDAH HALAMAN BARU */
+            page-break-after: always;
         }
 
-        /* Menghilangkan page break pada elemen terakhir agar tidak ada halaman kosong di akhir PDF */
-        .page-container:last-child {
-            page-break-after: auto;
-        }
+        .page-container:last-child { page-break-after: auto; }
 
         .kop-surat { display: flex; align-items: center; border-bottom: 2.5px solid #000; padding-bottom: 8px; margin-bottom: 10px; }
         .logo-box { width: 55px; flex-shrink: 0; }
@@ -73,7 +67,7 @@
         .header-text .school-name { margin: 3px 0; font-size: 16px; font-weight: 800; text-transform: uppercase; color: black; }
         
         table { width: 100%; border-collapse: collapse; table-layout: auto; border: 1.5px solid black; }
-        thead { display: table-header-group; } /* Header tabel muncul di setiap halaman jika tabel terpotong */
+        thead { display: table-header-group; } 
         
         th, td { 
             border: 1px solid black; padding: 4px 6px; 
@@ -89,24 +83,9 @@
         .col-narrow { width: 32px; min-width: 32px; text-align: center; }
         .col-ket { width: 55px; min-width: 55px; }
 
-        .signature-wrapper { 
-            page-break-inside: avoid; /* Mencegah tanda tangan terbelah */
-            margin-top: 15px; 
-        }
-        
-        .footer-container { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: flex-end; 
-        }
-        
-        .signature-box { 
-            width: 320px; 
-            text-align: center; 
-            font-size: 10px; 
-            color: black; 
-        }
-
+        .signature-wrapper { page-break-inside: avoid; margin-top: 15px; }
+        .footer-container { display: flex; justify-content: space-between; align-items: flex-end; }
+        .signature-box { width: 320px; text-align: center; font-size: 10px; color: black; }
         .signature-box p { margin: 2px 0; } 
         .space { height: 45px; } 
         .date-line { margin-bottom: 5px !important; }
@@ -114,18 +93,8 @@
         @media print {
             .no-print { display: none !important; }
             body { background: white; margin: 0; padding: 0; }
-            @page { 
-                size: A4 landscape; 
-                margin: 0.5cm; 
-            }
-            .page-container { 
-                box-shadow: none; 
-                border: none;
-                width: 100%;
-            }
-            /* Menjaga tabel tidak meluber */
-            table { page-break-inside: auto; }
-            tr { page-break-inside: avoid; page-break-after: auto; }
+            @page { size: A4 landscape; margin: 0.5cm; }
+            .page-container { box-shadow: none; border: none; width: 100%; }
             * { -webkit-print-color-adjust: exact; print-color-adjust: exact; color: black !important; }
         }
     </style>
@@ -160,6 +129,8 @@
 
 <script>
     let selectedFiles = [];
+    let processedData = []; // Menyimpan data hasil parse untuk penamaan file
+
     const fileInput = document.getElementById('csvFiles');
     const dropZone = document.getElementById('dropZone');
 
@@ -189,10 +160,12 @@
         
         outputArea.innerHTML = '<p style="text-align:center;" class="no-print">Memproses data sekolah...</p>'; 
         let finalHtml = '';
+        processedData = []; // Reset data setiap kali generate
         
         for (let file of selectedFiles) {
             try {
                 const data = await readFileData(file);
+                processedData.push(data); // Simpan info sekolah
                 finalHtml += generateSchoolPage(data, namaP, nipP);
             } catch (err) {
                 console.error("Gagal memproses file:", file.name);
@@ -235,7 +208,6 @@
                         });
                     }
                 });
-                
                 students.sort((a, b) => {
                     let st = a.tingkat.localeCompare(b.tingkat, undefined, {numeric: true});
                     return st !== 0 ? st : a.siswa.localeCompare(b.siswa);
@@ -263,13 +235,13 @@
         return `
         <div class="page-container">
             <div class="kop-surat">
-                <div class="logo-box"><img src="kemensos.png"></div>
+                <div class="logo-box"><img src="15854234115187.png"></div>
                 <div class="header-text">
                     <h2>Form Verifikasi Komitmen Pendidikan</h2>
                     <p class="school-name">${data.info.nama}</p>
                     <p style="font-size:10px; font-weight:normal;">NPSN: ${data.info.npsn} | Periode: Oktober - Desember 2025</p>
                 </div>
-                <div class="logo-box"><img src="15854234115187.png"></div>
+                <div class="logo-box"><img src="kemensos.png"></div>
             </div>
             <table>
                 <thead>
@@ -306,11 +278,24 @@
     }
 
     function saveAsPDF() {
-        if (selectedFiles.length === 0) return;
+        if (processedData.length === 0) {
+            alert("Silakan generate form terlebih dahulu!");
+            return;
+        }
+
+        // --- LOGIKA PENAMAAN FILE ---
+        if (processedData.length === 1) {
+            // Jika hanya 1 file
+            let npsn = processedData[0].info.npsn;
+            let namaSekolah = processedData[0].info.nama.replace(/\s+/g, '_').toUpperCase();
+            document.title = "VERDIK_" + npsn + "_" + namaSekolah;
+        } else {
+            // Jika banyak file
+            document.title = "VERDIK_GABUNGAN";
+        }
+
         window.print();
     }
 </script>
 </body>
 </html>
-
-
