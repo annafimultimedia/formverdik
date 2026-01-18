@@ -36,27 +36,30 @@
         .input-group { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
         .input-group input { 
             padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 8px; 
-            width: 280px; font-size: 14px; outline: none;
+            width: 250px; font-size: 14px; outline: none;
         }
+        .input-group input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
 
         #dropZone { 
-            border: 2px dashed #3498db; background: #f0f9ff; padding: 45px; border-radius: 15px; 
+            border: 2px dashed #3498db; background: #f0f9ff; padding: 35px; border-radius: 15px; 
             cursor: pointer; color: #3b82f6; text-align: center; transition: 0.3s;
         }
+        #dropZone:hover { background: #e0f2fe; border-color: #2563eb; }
+        #dropZone p { margin: 10px 0 0 0; font-weight: 500; }
 
         .action-area { margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 30px; }
 
-        .btn { padding: 14px 32px; font-weight: 600; border: none; border-radius: 10px; cursor: pointer; font-size: 15px; transition: 0.2s; }
-        .btn-generate { background: var(--primary-color); color: white; }
-        .btn-save { background: var(--secondary-color); color: white; margin-left: 10px; }
+        .btn { padding: 14px 32px; font-weight: 600; border: none; border-radius: 10px; cursor: pointer; font-size: 15px; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-generate { background: var(--primary-color); color: white; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2); }
+        .btn-generate:hover { background: #1d4ed8; transform: translateY(-2px); }
+        .btn-save { background: var(--secondary-color); color: white; margin-left: 10px; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2); }
+        .btn-save:hover { background: #059669; transform: translateY(-2px); }
 
         /* --- PRINT LAYOUT --- */
         .page-container { 
-            width: 28.7cm; margin: 0 auto; padding: 0; background: white;
-            box-sizing: border-box;
-            page-break-after: always;
+            width: 28.7cm; margin: 20px auto; padding: 0; background: white;
+            box-sizing: border-box; page-break-after: always;
         }
-
         .page-container:last-child { page-break-after: auto; }
 
         .kop-surat { display: flex; align-items: center; border-bottom: 2.5px solid #000; padding-bottom: 8px; margin-bottom: 10px; }
@@ -68,14 +71,8 @@
         
         table { width: 100%; border-collapse: collapse; table-layout: auto; border: 1.5px solid black; }
         thead { display: table-header-group; } 
-        
-        th, td { 
-            border: 1px solid black; padding: 4px 6px; 
-            font-size: 8.5px; white-space: nowrap; color: black;
-        }
-        
+        th, td { border: 1px solid black; padding: 4px 6px; font-size: 8.5px; white-space: nowrap; color: black; }
         th { background-color: #e5e7eb !important; font-weight: bold; -webkit-print-color-adjust: exact; }
-
         tbody tr:nth-child(even) { background-color: #f2f2f2 !important; -webkit-print-color-adjust: exact; }
         tbody tr:nth-child(odd) { background-color: #ffffff !important; -webkit-print-color-adjust: exact; }
 
@@ -107,8 +104,9 @@
 
     <div class="card-input">
         <div class="input-group">
+            <input type="text" id="kabupatenInput" placeholder="📍 Kabupaten / Kota" />
             <input type="text" id="namaPendampingInput" placeholder="✍️ Nama Pendamping (TTD)" />
-            <input type="text" id="nipPendampingInput" placeholder="🆔 NIP (Opsional)" />
+            <input type="text" id="nipPendampingInput" placeholder="🆔 NIP Pendamping" />
         </div>
     </div>
 
@@ -121,7 +119,7 @@
 
     <div class="action-area">
         <button onclick="processMassiveCSVs()" class="btn btn-generate">⚙️ GENERATE FORM</button>
-        <button onclick="saveAsPDF()" class="btn btn-save">💾 CETAK PDF</button>
+        <button onclick="saveAsPDF()" class="btn btn-save">💾 SIMPAN PDF / CETAK</button>
     </div>
 </div>
 
@@ -129,7 +127,7 @@
 
 <script>
     let selectedFiles = [];
-    let processedData = []; // Menyimpan data hasil parse untuk penamaan file
+    let processedData = [];
 
     const fileInput = document.getElementById('csvFiles');
     const dropZone = document.getElementById('dropZone');
@@ -153,6 +151,7 @@
 
     async function processMassiveCSVs() {
         const outputArea = document.getElementById('outputArea');
+        const kabupaten = document.getElementById('kabupatenInput').value.trim() || "....................";
         const namaP = document.getElementById('namaPendampingInput').value.trim() || "..........................................";
         const nipP = document.getElementById('nipPendampingInput').value.trim();
         
@@ -160,13 +159,13 @@
         
         outputArea.innerHTML = '<p style="text-align:center;" class="no-print">Memproses data sekolah...</p>'; 
         let finalHtml = '';
-        processedData = []; // Reset data setiap kali generate
+        processedData = [];
         
         for (let file of selectedFiles) {
             try {
                 const data = await readFileData(file);
-                processedData.push(data); // Simpan info sekolah
-                finalHtml += generateSchoolPage(data, namaP, nipP);
+                processedData.push(data);
+                finalHtml += generateSchoolPage(data, namaP, nipP, kabupaten);
             } catch (err) {
                 console.error("Gagal memproses file:", file.name);
             }
@@ -218,7 +217,7 @@
         });
     }
 
-    function generateSchoolPage(data, namaP, nipP) {
+    function generateSchoolPage(data, namaP, nipP, kab) {
         let rows = data.students.map((s, i) => `
             <tr>
                 <td style="text-align:center">${i + 1}</td>
@@ -235,13 +234,13 @@
         return `
         <div class="page-container">
             <div class="kop-surat">
-                <div class="logo-box"><img src="15854234115187.png"></div>
+                <div class="logo-box"><img src=" kemensos.png"></div>
                 <div class="header-text">
                     <h2>Form Verifikasi Komitmen Pendidikan</h2>
                     <p class="school-name">${data.info.nama}</p>
                     <p style="font-size:10px; font-weight:normal;">NPSN: ${data.info.npsn} | Periode: Oktober - Desember 2025</p>
                 </div>
-                <div class="logo-box"><img src="kemensos.png"></div>
+                <div class="logo-box"><img src="15854234115187.png"></div>
             </div>
             <table>
                 <thead>
@@ -266,7 +265,7 @@
                     </div>
 
                     <div class="signature-box">
-                        <p class="date-line">Jember, .........................................</p>
+                        <p class="date-line">${kab}, .........................................</p>
                         <p>Kepala Sekolah / Verifikator</p>
                         <div class="space"></div>
                         <p><strong>__________________________</strong></p>
@@ -278,22 +277,14 @@
     }
 
     function saveAsPDF() {
-        if (processedData.length === 0) {
-            alert("Silakan generate form terlebih dahulu!");
-            return;
-        }
-
-        // --- LOGIKA PENAMAAN FILE ---
+        if (processedData.length === 0) return alert("Generate data dahulu!");
         if (processedData.length === 1) {
-            // Jika hanya 1 file
             let npsn = processedData[0].info.npsn;
             let namaSekolah = processedData[0].info.nama.replace(/\s+/g, '_').toUpperCase();
             document.title = "VERDIK_" + npsn + "_" + namaSekolah;
         } else {
-            // Jika banyak file
             document.title = "VERDIK_GABUNGAN";
         }
-
         window.print();
     }
 </script>
