@@ -143,8 +143,9 @@
 
     <div id="dropZone">
         <div style="font-size: 40px;">📂</div>
-        <p id="dropText">Tarik & Lepaskan File CSV di sini atau Klik untuk Pilih</p>
-        <input type="file" id="csvFiles" accept=".csv" multiple style="display: none;" />
+        <p id="dropText">Ketuk di sini untuk Pilih File CSV (Mendukung Android/iOS & PC)</p>
+        <!-- MODIFIKASI: accept disesuaikan agar mobile storage bisa memfilter format text/csv dengan baik -->
+        <input type="file" id="csvFiles" accept=".csv,text/csv,text/comma-separated-values" multiple style="display: none;" />
         <div id="fileStatus" style="margin-top:12px; font-size:14px; color:#059669; font-weight:bold;"></div>
     </div>
 
@@ -160,37 +161,28 @@
     let selectedFiles = [];
     let processedData = [];
 
-    // Menggunakan Link Web App Google Apps Script milik Anda langsung
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyAeenUPSghnsfJFLNJ32Pv5_p69xyZaX2XyyRfIeCSazkKbW9joRv-ku7gPXhhr4Fbcw/exec'; 
 
     window.addEventListener('DOMContentLoaded', () => {
-        // Ambil data statistik sekaligus daftarkan sebagai 'pengunjung baru'
         sendJsonpRequest('visit', 0); 
     });
 
-    // Fungsi Utama JSONP Bypass CORS Google
     function sendJsonpRequest(actionType, fileCount) {
-        // Buat nama fungsi callback unik
         const callbackName = 'pkh_callback_' + Math.round(100000 * Math.random());
         
-        // Daftarkan fungsi ke objek window global agar bisa dipanggil oleh respon Google Script
         window[callbackName] = function(data) {
-            // Update UI setelah data diterima
             document.getElementById('globalVisitors').innerText = data.visitors.toLocaleString('id-ID') + " Orang";
             document.getElementById('globalFiles').innerText = data.files.toLocaleString('id-ID') + " File";
-            
-            // Bersihkan tag script lama dari memori browser
             delete window[callbackName];
-            document.getElementById(callbackName).remove();
+            const el = document.getElementById(callbackName);
+            if(el) el.remove();
         };
 
-        // Buat URL lengkap
         let url = `${APPS_SCRIPT_URL}?action=${actionType}&callback=${callbackName}`;
         if (actionType === 'file') {
             url += `&count=${fileCount}`;
         }
 
-        // Sisipkan tag script secara dinamis untuk mengambil data bebas hambatan
         const script = document.createElement('script');
         script.src = url;
         script.id = callbackName;
@@ -239,22 +231,23 @@
                 processedData.push(data);
                 finalHtml += generateSchoolPage(data, namaP, nipP, kabupaten);
             } catch (err) {
-                console.error("Gagal memproses file:", file.name);
+                console.error("Gagal memproses file:", file.name, err);
             }
         }
         outputArea.innerHTML = finalHtml;
 
-        // Kirim penambahan total jumlah file terproses ke Google Sheet via JSONP
         if (processedData.length > 0) {
             sendJsonpRequest('file', processedData.length);
         }
     }
 
     function readFileData(file) {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = (e) => {
-                const lines = e.target.result.split(/\r?\n/);
+                // MODIFIKASI: Pembersihan karakter carriage return (\r) lebih aman untuk mobile
+                const textData = e.target.result;
+                const lines = textData.split(/\r?\n|\r/);
                 let info = { nama: "NAMA SEKOLAH", npsn: "0" };
                 let students = [];
                 let idx = { pgs: 2, nik: 3, nisn: 4, sis: 5, tkt: 7, pnd: -1 };
@@ -290,6 +283,7 @@
                 });
                 resolve({ info, students });
             };
+            reader.onerror = (err) => reject(err);
             reader.readAsText(file, 'ISO-8859-1');
         });
     }
@@ -311,13 +305,13 @@
         return `
         <div class="page-container">
             <div class="kop-surat">
-                <div class="logo-box"><img src="kemensos.png"></div>
+                <div class="logo-box"><img src="kemensos.png" onerror="this.style.display='none'"></div>
                 <div class="header-text">
                     <h2>Form Verifikasi Komitmen Pendidikan</h2>
                     <p class="school-name">${data.info.nama}</p>
                     <p style="font-size:10px; font-weight:normal;">NPSN: ${data.info.npsn} | Periode: April - Juni 2026</p>
                 </div>
-                <div class="logo-box"><img src="15854234115187.png"></div>
+                <div class="logo-box"><img src="15854234115187.png" onerror="this.style.display='none'"></div>
             </div>
             <table>
                 <thead>
